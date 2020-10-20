@@ -21,6 +21,7 @@ import java.util.List;
 
 public class Tile  extends BorderPane {
     public static ArrayList<Figure> figures = new ArrayList<>();
+    private static FigureColor turn = FigureColor.WHITE;
     private Figure onField;
     private final int posy;
     private final int posx;
@@ -50,8 +51,9 @@ public class Tile  extends BorderPane {
         this.setOnDragDropped(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent event) {
-                if (AvailableMovements.checkAvailableMovement(tile, tile.getPositionX(), tile.getPositionY(), figures.get(Integer.parseInt(event.getDragboard().getString())))) {
+                if (AvailableMovements.checkAvailableMovement(tile, tile.getPositionX(), tile.getPositionY(), figures.get(Integer.parseInt(event.getDragboard().getString())))&&turn==figures.get(Integer.parseInt(event.getDragboard().getString())).getColor()) {
                     if (tile.getCenter() != null && figures.indexOf((Figure) tile.getCenter()) != Integer.parseInt(event.getDragboard().getString())) {
+                        changeTurn();
                         Figure f = (Figure) tile.getCenter();
                         if(f.getColor()!=figures.get(Integer.parseInt(event.getDragboard().getString())).getColor()) {
                             tile.setCenter(figures.get(Integer.parseInt(event.getDragboard().getString())));
@@ -62,6 +64,7 @@ public class Tile  extends BorderPane {
                             TextDialog.getTextDialog("NIEDOZWOLONE").showAndWait();
                         }
                     } else {
+                        changeTurn();
                         tile.setCenter(figures.get(Integer.parseInt(event.getDragboard().getString())));
                     }
                     tile.onField = (Figure) tile.getCenter();
@@ -71,7 +74,6 @@ public class Tile  extends BorderPane {
                     figures.set(f.getPosition(), f);
                 }
                 else{
-
                     TextDialog.getTextDialog("NIEDOZWOLONE").showAndWait();
                 }
                 if(AvailableMovements.findKing(FigureColor.BLACK)==null){
@@ -96,7 +98,14 @@ public class Tile  extends BorderPane {
             }
         });
     }
-
+    public void changeTurn(){
+        if(turn == FigureColor.BLACK){
+            turn = FigureColor.WHITE;
+        }
+        else if(turn == FigureColor.WHITE){
+            turn= FigureColor.BLACK;
+        }
+    }
     public int getPositionX() {
         return posx;
     }
