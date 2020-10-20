@@ -139,7 +139,7 @@ public class AvailableMovements {
             int min = yPosition;
             for (Figure figure : Tile.getFigures()) {
                 if(figure.getCurrentTile().getPositionY()<=yPosition&&figure.getCurrentTile().getPositionY()>f.getCurrentTile().getPositionY()&&f.getCurrentTile().getPositionX()==figure.getCurrentTile().getPositionX()){
-                    min = Math.min(min,figure.getCurrentTile().getPositionX());
+                    min = Math.min(min,figure.getCurrentTile().getPositionY());
                 }
             }
             return min >= yPosition;
