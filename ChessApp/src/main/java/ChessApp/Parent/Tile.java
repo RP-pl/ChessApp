@@ -1,8 +1,11 @@
 package ChessApp.Parent;
 
 import ChessApp.Enums.FieldColor;
+import ChessApp.Enums.FigureColor;
 import ChessApp.Node.Figure;
 import ChessApp.Util.AvailableMovements;
+import ChessApp.Util.BoardUtil;
+import ChessApp.Util.TextDialog;
 import javafx.collections.ObservableArray;
 import javafx.event.EventHandler;
 import javafx.scene.input.DragEvent;
@@ -11,6 +14,8 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Paint;
+
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,13 +53,13 @@ public class Tile  extends BorderPane {
                 if (AvailableMovements.checkAvailableMovement(tile, tile.getPositionX(), tile.getPositionY(), figures.get(Integer.parseInt(event.getDragboard().getString())))) {
                     if (tile.getCenter() != null && figures.indexOf((Figure) tile.getCenter()) != Integer.parseInt(event.getDragboard().getString())) {
                         Figure f = (Figure) tile.getCenter();
-                        //TODO
-                        tile.setCenter(figures.get(Integer.parseInt(event.getDragboard().getString())));
-                        figures.remove(f);
-                        for (Figure figure : figures) {
-                            int p = figures.indexOf(figure);
-                            figure.setPosition(p);
-                            figures.set(p, figure);
+                        if(f.getColor()!=figures.get(Integer.parseInt(event.getDragboard().getString())).getColor()) {
+                            tile.setCenter(figures.get(Integer.parseInt(event.getDragboard().getString())));
+                            figures.remove(f);
+                            BoardUtil.updatePositions();
+                        }
+                        else {
+                            TextDialog.getTextDialog("NIEDOZWOLONE").showAndWait();
                         }
                     } else {
                         tile.setCenter(figures.get(Integer.parseInt(event.getDragboard().getString())));
@@ -66,10 +71,29 @@ public class Tile  extends BorderPane {
                     figures.set(f.getPosition(), f);
                 }
                 else{
-                    System.out.println("NIEDOZWOLONE");
+
+                    TextDialog.getTextDialog("NIEDOZWOLONE").showAndWait();
+                }
+                if(AvailableMovements.findKing(FigureColor.BLACK)==null){
+                    TextDialog.getTextDialog("BIALE WYGRALY").showAndWait();
+                    try {
+                        figures = new ArrayList<>();
+                        tile.getScene().setRoot(BoardUtil.getChessBoard());
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                else if(AvailableMovements.findKing(FigureColor.WHITE)==null) {
+                    TextDialog.getTextDialog("CZARNE WYGRALY").showAndWait();
+                    try {
+                        figures = new ArrayList<>();
+                        tile.getScene().setRoot(BoardUtil.getChessBoard());
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-
         });
     }
 
