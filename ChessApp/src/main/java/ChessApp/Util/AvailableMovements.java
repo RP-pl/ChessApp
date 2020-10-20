@@ -26,6 +26,9 @@ public class AvailableMovements {
         else if(f.getType() == FigureType.KNIGHT){
             return knightAvailableMovement(t, xPosition, yPosition, f);
         }
+        else if(f.getType() == FigureType.KING){
+            return kingAvailableMovement(t, xPosition, yPosition, f);
+        }
         return true;
     }
 
@@ -100,7 +103,14 @@ public class AvailableMovements {
         return false;
     }
 
-
+    private static boolean kingAvailableMovement(Tile t,int xPosition, int yPosition, Figure f){
+        int x = f.getCurrentTile().getPositionX();
+        int y = f.getCurrentTile().getPositionY();
+        if((Math.abs(yPosition-y)==1&&Math.abs(xPosition-x)==1)||(Math.abs(yPosition-y)==0&&Math.abs(xPosition-x)==1)||(Math.abs(yPosition-y)==1&&Math.abs(xPosition-x)==0)){
+            return true;
+        }
+        return false;
+    }
 
 
     private static boolean checkXAxisBlocked(int xPosition,Figure f){
@@ -214,7 +224,7 @@ public class AvailableMovements {
         return false;
     }
 
-    private static Figure findKing(FigureColor color){
+    public static Figure findKing(FigureColor color){
         Optional<Figure> queen = Tile.getFigures().stream().filter(figure -> figure.getType()==FigureType.KING).filter(figure -> figure.getColor()==color).findFirst();
         return queen.orElse(null);
     }
