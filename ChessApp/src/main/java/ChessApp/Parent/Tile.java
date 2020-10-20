@@ -11,9 +11,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Paint;
-
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Tile  extends BorderPane {
@@ -50,6 +48,7 @@ public class Tile  extends BorderPane {
                 if (AvailableMovements.checkAvailableMovement(tile, tile.getPositionX(), tile.getPositionY(), figures.get(Integer.parseInt(event.getDragboard().getString())))) {
                     if (tile.getCenter() != null && figures.indexOf((Figure) tile.getCenter()) != Integer.parseInt(event.getDragboard().getString())) {
                         Figure f = (Figure) tile.getCenter();
+                        //TODO
                         tile.setCenter(figures.get(Integer.parseInt(event.getDragboard().getString())));
                         figures.remove(f);
                         for (Figure figure : figures) {
@@ -62,6 +61,7 @@ public class Tile  extends BorderPane {
                     }
                     tile.onField = (Figure) tile.getCenter();
                     Figure f = (Figure) tile.getCenter();
+                    f.incrementMoves();
                     f.setCurrentTile(tile);
                     figures.set(f.getPosition(), f);
                 }

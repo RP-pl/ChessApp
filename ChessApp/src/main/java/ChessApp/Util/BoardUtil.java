@@ -11,6 +11,14 @@ import javafx.scene.layout.VBox;
 import java.io.FileNotFoundException;
 
 public class BoardUtil {
+    public static void addFigure(int x,int y,HBox board,Figure f){
+        Tile t= (Tile) ((VBox)board.getChildren().get(x)).getChildren().get(y);
+        f.setCurrentTile(t);
+        t.addFigure(f);
+        t.setCenter(f);
+    }
+
+
     public static HBox getChessBoard() throws FileNotFoundException {
         HBox board = new HBox();
         for(int i=0;i<8;i++){
@@ -36,26 +44,16 @@ public class BoardUtil {
             }
         board.getChildren().add(row);
         }
-        Tile t= (Tile) ((VBox)board.getChildren().get(0)).getChildren().get(0);
-        Figure f = new Figure(FigureColor.BLACK,FigureType.PAWN);
-        f.setCurrentTile(t);
-        t.addFigure(f);
-        t.setCenter(f);
-        Tile t2= (Tile) ((VBox)board.getChildren().get(1)).getChildren().get(7);
+        Figure f = new Figure(FigureColor.BLACK,FigureType.ROOK);
+        addFigure(0,0,board,f);
         Figure f2 = new Figure(FigureColor.WHITE,FigureType.PAWN);
-        f2.setCurrentTile(t2);
-        t2.addFigure(f2);
-        t2.setCenter(f2);
-        Tile t3= (Tile) ((VBox)board.getChildren().get(2)).getChildren().get(0);
+        addFigure(1,7,board,f2);
         Figure f3 = new Figure(FigureColor.BLACK,FigureType.BISHOP);
-        f3.setCurrentTile(t3);
-        t3.addFigure(f3);
-        t3.setCenter(f3);
-        Tile t4= (Tile) ((VBox)board.getChildren().get(3)).getChildren().get(0);
-        Figure f4 = new Figure(FigureColor.WHITE,FigureType.KNIGHT);
-        f4.setCurrentTile(t4);
-        t4.addFigure(f4);
-        t4.setCenter(f4);
+        addFigure(2,0,board,f3);
+        Figure f4 = new Figure(FigureColor.WHITE,FigureType.KING);
+        addFigure(3,0,board,f4);
+        Figure f5 = new Figure(FigureColor.WHITE,FigureType.KNIGHT);
+        addFigure(3,3,board,f5);
         return board;
     }
 }

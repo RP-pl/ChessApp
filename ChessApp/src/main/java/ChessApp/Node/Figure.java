@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 public class Figure extends ImageView {
+    public int moves = 0;
     private final FigureColor color;
     private final FigureType type;
     private final Figure figure = this;
@@ -105,5 +106,16 @@ public class Figure extends ImageView {
 
     public FigureColor getColor() {
         return color;
+    }
+
+    public int getMoves() {
+        return moves;
+    }
+
+    public void setMoves(int moves) {
+        this.moves = moves;
+    }
+    public void incrementMoves(){
+        this.moves++;
     }
 }
