@@ -17,7 +17,7 @@ import java.io.FileNotFoundException;
 public class Figure extends ImageView {
     public int moves = 0;
     private final FigureColor color;
-    private final FigureType type;
+    private FigureType type;
     private final Figure figure = this;
     private int position;
     private Tile currentTile;
@@ -117,5 +117,56 @@ public class Figure extends ImageView {
     }
     public void incrementMoves(){
         this.moves++;
+    }
+    public void setType(FigureType type) throws FileNotFoundException {
+        this.type = type;
+        if(type == FigureType.PAWN){
+            if(color == FigureColor.BLACK){
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\Black_pawn.png")));
+            }
+            else{
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\White_pawn.png")));
+            }
+        }
+        else if(type == FigureType.BISHOP){
+            if(color == FigureColor.BLACK){
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\Black_bishop.png")));
+            }
+            else{
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\White_bishop.png")));
+            }
+        }
+        else if(type == FigureType.KING){
+            if(color == FigureColor.BLACK){
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\Black_king.png")));
+            }
+            else{
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\White_king.png")));
+            }
+        }
+        else if(type == FigureType.KNIGHT){
+            if(color == FigureColor.BLACK){
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\Black_knight.png")));
+            }
+            else{
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\White_knight.png")));
+            }
+        }
+        else if(type == FigureType.ROOK){
+            if(color == FigureColor.BLACK){
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\Black_rook.png")));
+            }
+            else{
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\White_rook.png")));
+            }
+        }
+        else if(type == FigureType.QUEEN){
+            if(color == FigureColor.BLACK){
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\Black_queen.png")));
+            }
+            else{
+                this.setImage(new Image(new FileInputStream("src\\main\\resources\\White_queen.png")));
+            }
+        }
     }
 }
