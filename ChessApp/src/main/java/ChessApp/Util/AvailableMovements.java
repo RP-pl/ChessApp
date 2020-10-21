@@ -7,7 +7,8 @@ import ChessApp.Parent.Tile;
 import com.sun.javafx.tk.Toolkit;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
+import static ChessApp.Util.MovementUtil.*;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,7 +16,11 @@ import java.util.stream.Collectors;
 public class AvailableMovements {
     public static boolean checkAvailableMovement(Tile t,int xPosition, int yPosition, Figure f){
         if(f.getType()== FigureType.PAWN) {
-         return pawnAvailableMovement(t,xPosition,yPosition,f);
+            try {
+                return pawnAvailableMovement(t, xPosition, yPosition, f);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         else if(f.getType() == FigureType.ROOK){
             return rookAvailableMovement(t, xPosition, yPosition, f);
@@ -40,11 +45,16 @@ public class AvailableMovements {
 
 
 
-    private static boolean pawnAvailableMovement(Tile t,int xPosition, int yPosition, Figure f){
+    private static boolean pawnAvailableMovement(Tile t,int xPosition, int yPosition, Figure f) throws FileNotFoundException {
         if (f.getColor() == FigureColor.WHITE) {
             if (xPosition == f.getCurrentTile().getPositionX()) {
                 if (yPosition == f.getCurrentTile().getPositionY() - 1 || (yPosition == f.getCurrentTile().getPositionY() - 2&f.moves==0)) {
                     if (t.getCenter() != null) {
+                        if(yPosition==0){
+                            f.setType(ChangeFigureDialog.getChangeDialog().showAndWait().get());
+                            Tile.figures.set(f.getPosition(),f);
+                            return true;
+                        }
                         return true;
                     }
                     return true;
@@ -52,7 +62,15 @@ public class AvailableMovements {
             } else {
                 for (Figure figure : Tile.figures) {
                     if (figure.getCurrentTile().getPositionY() == yPosition && (figure.getCurrentTile().getPositionX() == xPosition)) {
-                        return true;
+                        if(f.getCurrentTile().getPositionY()-1==figure.getCurrentTile().getPositionY()&&(f.getCurrentTile().getPositionX()-1==figure.getCurrentTile().getPositionX()||f.getCurrentTile().getPositionX()+1==figure.getCurrentTile().getPositionX())) {
+                            if(yPosition==0){
+                                f.setType(ChangeFigureDialog.getChangeDialog().showAndWait().get());
+                                Tile.figures.set(f.getPosition(),f);
+                                return true;
+                            }
+                            return true;
+                        }
+
                     }
                 }
             }
@@ -60,6 +78,11 @@ public class AvailableMovements {
             if (xPosition == f.getCurrentTile().getPositionX()) {
                 if (yPosition == f.getCurrentTile().getPositionY() + 1 || (yPosition == f.getCurrentTile().getPositionY() + 2&&f.moves==0)) {
                     if (t.getCenter() != null) {
+                        if(yPosition==7){
+                            f.setType(ChangeFigureDialog.getChangeDialog().showAndWait().get());
+                            Tile.figures.set(f.getPosition(),f);
+                            return true;
+                        }
                         return true;
                     }
                     return true;
@@ -67,7 +90,14 @@ public class AvailableMovements {
             } else {
                 for (Figure figure : Tile.figures) {
                     if (figure.getCurrentTile().getPositionY() == yPosition && (figure.getCurrentTile().getPositionX() == xPosition)) {
-                        return true;
+                        if(f.getCurrentTile().getPositionY()+1==figure.getCurrentTile().getPositionY()&&(f.getCurrentTile().getPositionX()-1==figure.getCurrentTile().getPositionX()||f.getCurrentTile().getPositionX()+1==figure.getCurrentTile().getPositionX())) {
+                            if(yPosition==7){
+                                f.setType(ChangeFigureDialog.getChangeDialog().showAndWait().get());
+                                Tile.figures.set(f.getPosition(),f);
+                                return true;
+                            }
+                            return true;
+                        }
                     }
                 }
             }
@@ -237,98 +267,6 @@ public class AvailableMovements {
             return maxX <= xPosition&&maxY<= yPosition;
         }
     }
-    private static boolean checkIncrementingBlock(int xPosition,int yPosition,Figure f){
-        if(yPosition<f.getCurrentTile().getPositionY()&&xPosition>f.getCurrentTile().getPositionX()){
-            int minY=yPosition,minX=xPosition;
-            for(Figure figure : Tile.getFigures()){
-                if(inlinei(figure,xPosition,yPosition)&&figure.getCurrentTile()!=f.getCurrentTile()&&f.getCurrentTile().getPositionX()<figure.getCurrentTile().getPositionX()){
-                    minX=Math.min(figure.getCurrentTile().getPositionX(),minX);
-                    minY=Math.max(figure.getCurrentTile().getPositionY(),minY);
-                }
-            }
-            return minX >= xPosition&&minY<= yPosition;
-        }
-        else{
-            int maxY=yPosition,maxX=xPosition;
-            for(Figure figure : Tile.getFigures()){
-                if(inlinei(figure,xPosition,yPosition)&&figure.getCurrentTile()!=f.getCurrentTile()&&f.getCurrentTile().getPositionX()>figure.getCurrentTile().getPositionX()){
-                    maxX=Math.max(figure.getCurrentTile().getPositionX(),maxX);
-                    maxY=Math.min(figure.getCurrentTile().getPositionY(),maxY);
-                }
-            }
-            return maxX <= xPosition&&maxY>= yPosition;
-        }
-    }
-
-
-    private static boolean inline(Figure figure,int xPosition,int yPosition){
-        int x = figure.getCurrentTile().getPositionX();
-        int y = figure.getCurrentTile().getPositionY();
-        for(int i=-8;i<=8;i++) {
-            if ((x + i == xPosition && y + i == yPosition)){
-                return true;
-            }
-        }
-        return false;
-    }
-    private static boolean inlinei(Figure figure,int xPosition,int yPosition){
-        int x = figure.getCurrentTile().getPositionX();
-        int y = figure.getCurrentTile().getPositionY();
-        for(int i=-8;i<=8;i++) {
-            if ((x + i == xPosition && y - i == yPosition)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean leftRookfieldsClear(FigureColor color, HBox board){
-        VBox first = (VBox) board.getChildren().get(1);
-        VBox second = (VBox) board.getChildren().get(2);
-        VBox third = (VBox) board.getChildren().get(3);
-        if(color == FigureColor.WHITE){
-            Tile f = (Tile) first.getChildren().get(7);
-            Tile s = (Tile) second.getChildren().get(7);
-            Tile t = (Tile) third.getChildren().get(7);
-            if(f.getCenter()==null&&s.getCenter()==null&&t.getCenter()==null){
-                return true;
-            }
-            return false;
-        }
-        else if(color == FigureColor.BLACK){
-            Tile f = (Tile) first.getChildren().get(0);
-            Tile s = (Tile) second.getChildren().get(0);
-            Tile t = (Tile) third.getChildren().get(0);
-            if(f.getCenter()==null&&s.getCenter()==null&&t.getCenter()==null){
-                return true;
-            }
-            return false;
-        }
-        return false;
-    }
-
-    private static boolean rightRookfieldsClear(FigureColor color, HBox board){
-        VBox first = (VBox) board.getChildren().get(6);
-        VBox second = (VBox) board.getChildren().get(5);
-        if(color == FigureColor.WHITE){
-            Tile f = (Tile) first.getChildren().get(7);
-            Tile s = (Tile) second.getChildren().get(7);
-            if(f.getCenter()==null&&s.getCenter()==null){
-                return true;
-            }
-            return false;
-        }
-        else if(color == FigureColor.BLACK){
-            Tile f = (Tile) first.getChildren().get(0);
-            Tile s = (Tile) second.getChildren().get(0);
-            if(f.getCenter()==null&&s.getCenter()==null){
-                return true;
-            }
-            return false;
-        }
-        return false;
-    }
-
 
     public static List<Figure> findRooks(FigureColor color){
         List<Figure> rook = Tile.getFigures().stream().filter(figure -> figure.getType()==FigureType.ROOK).filter(figure -> figure.getColor()==color).collect(Collectors.toList());
