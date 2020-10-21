@@ -5,7 +5,10 @@ import ChessApp.Enums.FigureType;
 import ChessApp.Node.Figure;
 import ChessApp.Parent.Tile;
 import com.sun.javafx.tk.Toolkit;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -104,10 +107,65 @@ public class AvailableMovements {
     }
 
     private static boolean kingAvailableMovement(Tile t,int xPosition, int yPosition, Figure f){
+        List<Figure> rooks = findRooks(f.getColor());
         int x = f.getCurrentTile().getPositionX();
         int y = f.getCurrentTile().getPositionY();
         if((Math.abs(yPosition-y)==1&&Math.abs(xPosition-x)==1)||(Math.abs(yPosition-y)==0&&Math.abs(xPosition-x)==1)||(Math.abs(yPosition-y)==1&&Math.abs(xPosition-x)==0)){
             return true;
+        }
+        else if(rooks.size()==2){
+            Figure left;
+            Figure right;
+            if(rooks.get(0).getCurrentTile().getPositionX()==0){
+                 left = rooks.get(0);
+                 right = rooks.get(1);
+            }
+            else{
+                 left = rooks.get(1);
+                 right = rooks.get(0);
+            }
+            if(f.getColor()==FigureColor.WHITE) {
+                HBox board = (HBox) t.getParent().getParent();
+
+                if (xPosition == 2 && left.getMoves() == 0 && f.getMoves() == 0&&leftRookfieldsClear(f.getColor(),board)) {
+                    left.incrementMoves();
+                    ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)).setCenter(left);
+                    left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
+                    Tile.figures.set(left.getPosition(),left);
+                    ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)).changeTurn();
+                    return true;
+                }
+                if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
+                    right.incrementMoves();
+                    ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)).setCenter(right);
+                    left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
+                    Tile.figures.set(left.getPosition(),right);
+                    ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)).changeTurn();
+                    return true;
+                }
+
+            }
+            else if(f.getColor()==FigureColor.BLACK) {
+                HBox board = (HBox) t.getParent().getParent();
+
+                if (xPosition == 2 && left.getMoves() == 0 && f.getMoves() == 0&&leftRookfieldsClear(f.getColor(),board)) {
+                    left.incrementMoves();
+                    ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)).setCenter(left);
+                    left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
+                    Tile.figures.set(left.getPosition(),left);
+                    ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)).changeTurn();
+                    return true;
+                }
+                if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
+                    right.incrementMoves();
+                    ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(0)).setCenter(right);
+                    left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
+                    Tile.figures.set(left.getPosition(),right);
+                    ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(0)).changeTurn();
+                    return true;
+                }
+
+            }
         }
         return false;
     }
@@ -222,6 +280,59 @@ public class AvailableMovements {
             }
         }
         return false;
+    }
+
+    private static boolean leftRookfieldsClear(FigureColor color, HBox board){
+        VBox first = (VBox) board.getChildren().get(1);
+        VBox second = (VBox) board.getChildren().get(2);
+        VBox third = (VBox) board.getChildren().get(3);
+        if(color == FigureColor.WHITE){
+            Tile f = (Tile) first.getChildren().get(7);
+            Tile s = (Tile) second.getChildren().get(7);
+            Tile t = (Tile) third.getChildren().get(7);
+            if(f.getCenter()==null&&s.getCenter()==null&&t.getCenter()==null){
+                return true;
+            }
+            return false;
+        }
+        else if(color == FigureColor.BLACK){
+            Tile f = (Tile) first.getChildren().get(0);
+            Tile s = (Tile) second.getChildren().get(0);
+            Tile t = (Tile) third.getChildren().get(0);
+            if(f.getCenter()==null&&s.getCenter()==null&&t.getCenter()==null){
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private static boolean rightRookfieldsClear(FigureColor color, HBox board){
+        VBox first = (VBox) board.getChildren().get(6);
+        VBox second = (VBox) board.getChildren().get(5);
+        if(color == FigureColor.WHITE){
+            Tile f = (Tile) first.getChildren().get(7);
+            Tile s = (Tile) second.getChildren().get(7);
+            if(f.getCenter()==null&&s.getCenter()==null){
+                return true;
+            }
+            return false;
+        }
+        else if(color == FigureColor.BLACK){
+            Tile f = (Tile) first.getChildren().get(0);
+            Tile s = (Tile) second.getChildren().get(0);
+            if(f.getCenter()==null&&s.getCenter()==null){
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+
+    public static List<Figure> findRooks(FigureColor color){
+        List<Figure> rook = Tile.getFigures().stream().filter(figure -> figure.getType()==FigureType.ROOK).filter(figure -> figure.getColor()==color).collect(Collectors.toList());
+        return rook;
     }
 
     public static Figure findKing(FigureColor color){
