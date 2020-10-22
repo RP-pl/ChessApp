@@ -51,7 +51,7 @@ public class Tile  extends BorderPane {
         this.setOnDragDropped(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent event) {
-                if (AvailableMovements.checkAvailableMovement(tile, tile.getPositionX(), tile.getPositionY(), figures.get(Integer.parseInt(event.getDragboard().getString())))&&turn==figures.get(Integer.parseInt(event.getDragboard().getString())).getColor()) {
+                if (turn==figures.get(Integer.parseInt(event.getDragboard().getString())).getColor()&&AvailableMovements.checkAvailableMovement(tile, tile.getPositionX(), tile.getPositionY(), figures.get(Integer.parseInt(event.getDragboard().getString())))) {
                     if (tile.getCenter() != null && figures.indexOf((Figure) tile.getCenter()) != Integer.parseInt(event.getDragboard().getString())) {
                         changeTurn();
                         Figure f = (Figure) tile.getCenter();

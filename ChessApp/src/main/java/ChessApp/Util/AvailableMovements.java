@@ -164,7 +164,6 @@ public class AvailableMovements {
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
                     Tile.figures.set(left.getPosition(),left);
                     Figure.PGN.append("O-O-O ");
-                    //((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)).changeTurn();
                     return true;
                 }
                 if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
@@ -174,7 +173,6 @@ public class AvailableMovements {
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
                     Tile.figures.set(left.getPosition(),right);
                     Figure.PGN.append("O-O ");
-                    //((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)).changeTurn();
                     return true;
                 }
 
@@ -189,7 +187,6 @@ public class AvailableMovements {
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
                     Tile.figures.set(left.getPosition(),left);
                     Figure.PGN.append("O-O-O ");
-                    //((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)).changeTurn();
                     return true;
                 }
                 if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
@@ -199,7 +196,6 @@ public class AvailableMovements {
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
                     Tile.figures.set(left.getPosition(),right);
                     Figure.PGN.append("O-O ");
-                    //((Tile)((VBox)board.getChildren().get(5)).getChildren().get(0)).changeTurn();
                     return true;
                 }
 
