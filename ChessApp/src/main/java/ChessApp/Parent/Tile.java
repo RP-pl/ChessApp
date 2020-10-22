@@ -67,11 +67,12 @@ public class Tile  extends BorderPane {
                         changeTurn();
                         tile.setCenter(figures.get(Integer.parseInt(event.getDragboard().getString())));
                     }
-                    tile.onField = (Figure) tile.getCenter();
                     Figure f = (Figure) tile.getCenter();
                     f.incrementMoves();
+                    f.addToNotation(tile.getPositionX(),tile.getPositionY());
                     f.setCurrentTile(tile);
                     figures.set(f.getPosition(), f);
+                    System.out.println(Figure.PGN);
                 }
                 else{
                     TextDialog.getTextDialog("NIEDOZWOLONE").showAndWait();

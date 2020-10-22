@@ -160,17 +160,21 @@ public class AvailableMovements {
                 if (xPosition == 2 && left.getMoves() == 0 && f.getMoves() == 0&&leftRookfieldsClear(f.getColor(),board)) {
                     left.incrementMoves();
                     ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)).setCenter(left);
+                    Figure.rochadeFlag = true;
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
                     Tile.figures.set(left.getPosition(),left);
-                    ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)).changeTurn();
+                    Figure.PGN.append("O-O-O ");
+                    //((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)).changeTurn();
                     return true;
                 }
                 if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
                     right.incrementMoves();
                     ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)).setCenter(right);
+                    Figure.rochadeFlag = true;
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
                     Tile.figures.set(left.getPosition(),right);
-                    ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)).changeTurn();
+                    Figure.PGN.append("O-O ");
+                    //((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)).changeTurn();
                     return true;
                 }
 
@@ -180,18 +184,22 @@ public class AvailableMovements {
 
                 if (xPosition == 2 && left.getMoves() == 0 && f.getMoves() == 0&&leftRookfieldsClear(f.getColor(),board)) {
                     left.incrementMoves();
+                    Figure.rochadeFlag = true;
                     ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)).setCenter(left);
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
                     Tile.figures.set(left.getPosition(),left);
-                    ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)).changeTurn();
+                    Figure.PGN.append("O-O-O ");
+                    //((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)).changeTurn();
                     return true;
                 }
                 if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
                     right.incrementMoves();
+                    Figure.rochadeFlag = true;
                     ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(0)).setCenter(right);
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
                     Tile.figures.set(left.getPosition(),right);
-                    ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(0)).changeTurn();
+                    Figure.PGN.append("O-O ");
+                    //((Tile)((VBox)board.getChildren().get(5)).getChildren().get(0)).changeTurn();
                     return true;
                 }
 
