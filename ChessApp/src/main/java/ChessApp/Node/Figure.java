@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class Figure extends ImageView {
+    public static int totalMoves = 0;
     public int moves = 0;
     public static boolean rochadeFlag = false;
     public static StringBuilder PGN = new StringBuilder("");
@@ -173,33 +174,61 @@ public class Figure extends ImageView {
             }
         }
     }
-    public void addToNotation(int xc,int yc){
+    public void addToNotation(int xc,int yc,Figure f2){
         if(!rochadeFlag){
-            PGN.append(convertToPGN(this,xc,yc));
+            PGN.append(convertToPGN(this,xc,yc,f2));
         }
         rochadeFlag = false;
     }
-    private static String convertToPGN(Figure f,int xc,int yc){
-        Map<FigureType,String> conv = new TreeMap<>();
-        conv.put(FigureType.PAWN,"");
-        conv.put(FigureType.BISHOP,"B");
-        conv.put(FigureType.ROOK,"R");
-        conv.put(FigureType.KING,"K");
-        conv.put(FigureType.KNIGHT,"N");
-        conv.put(FigureType.QUEEN,"Q");
-        Map<Integer,String> x = new TreeMap<>();
-        x.put(0,"a");
-        x.put(1,"b");
-        x.put(2,"c");
-        x.put(3,"d");
-        x.put(4,"e");
-        x.put(5,"f");
-        x.put(6,"g");
-        x.put(7,"h");
-        StringBuilder s = new StringBuilder(conv.get(f.type));
-        s.append(x.get(xc));
-        s.append(Math.abs(8-yc));
-        s.append(" ");
-        return s.toString();
+    private static String convertToPGN(Figure f,int xc,int yc,Figure f2) {
+        Map<FigureType, String> conv = new TreeMap<>();
+        conv.put(FigureType.PAWN, "");
+        conv.put(FigureType.BISHOP, "B");
+        conv.put(FigureType.ROOK, "R");
+        conv.put(FigureType.KING, "K");
+        conv.put(FigureType.KNIGHT, "N");
+        conv.put(FigureType.QUEEN, "Q");
+        Map<Integer, String> x = new TreeMap<>();
+        x.put(0, "a");
+        x.put(1, "b");
+        x.put(2, "c");
+        x.put(3, "d");
+        x.put(4, "e");
+        x.put(5, "f");
+        x.put(6, "g");
+        x.put(7, "h");
+        StringBuilder s = new StringBuilder("");
+        if (f.color == FigureColor.BLACK) {
+            s.append("B");
+        } else {
+            s.append("W");
+        }
+        s.append((int) Math.ceil((double) (++totalMoves) / 2));
+        s.append(".");
+        if (f2 == null) {
+            s.append(conv.get(f.type));
+            s.append(x.get(xc));
+            s.append(Math.abs(8 - yc));
+            s.append(" ");
+            return s.toString();
+        } else {
+            if(f.type == FigureType.PAWN) {
+                s.append(conv.get(f.type));
+                s.append(x.get(f.getCurrentTile().getPositionX()));
+                s.append("x");
+                s.append(x.get(xc));
+                s.append(Math.abs(8 - yc));
+                s.append(" ");
+                return s.toString();
+            }
+            else {
+                s.append(conv.get(f.type));
+                s.append("x");
+                s.append(x.get(xc));
+                s.append(Math.abs(8 - yc));
+                s.append(" ");
+                return s.toString();
+            }
+        }
     }
 }

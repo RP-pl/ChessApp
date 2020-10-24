@@ -21,7 +21,7 @@ import java.util.List;
 
 public class Tile  extends BorderPane {
     public static ArrayList<Figure> figures = new ArrayList<>();
-    private static FigureColor turn = FigureColor.WHITE;
+    public static FigureColor turn = FigureColor.WHITE;
     private Figure onField;
     private final int posy;
     private final int posx;
@@ -56,6 +56,7 @@ public class Tile  extends BorderPane {
                         changeTurn();
                         Figure f = (Figure) tile.getCenter();
                         if(f.getColor()!=figures.get(Integer.parseInt(event.getDragboard().getString())).getColor()) {
+                            figures.get(Integer.parseInt(event.getDragboard().getString())).addToNotation(tile.getPositionX(),tile.getPositionY(),f);
                             tile.setCenter(figures.get(Integer.parseInt(event.getDragboard().getString())));
                             figures.remove(f);
                             BoardUtil.updatePositions();
@@ -66,10 +67,10 @@ public class Tile  extends BorderPane {
                     } else {
                         changeTurn();
                         tile.setCenter(figures.get(Integer.parseInt(event.getDragboard().getString())));
+                        figures.get(Integer.parseInt(event.getDragboard().getString())).addToNotation(tile.getPositionX(),tile.getPositionY(),null);
                     }
                     Figure f = (Figure) tile.getCenter();
                     f.incrementMoves();
-                    f.addToNotation(tile.getPositionX(),tile.getPositionY());
                     f.setCurrentTile(tile);
                     figures.set(f.getPosition(), f);
                     System.out.println(Figure.PGN);
@@ -79,22 +80,16 @@ public class Tile  extends BorderPane {
                 }
                 if(AvailableMovements.findKing(FigureColor.BLACK)==null){
                     TextDialog.getTextDialog("BIALE WYGRALY").showAndWait();
-                    try {
-                        figures = new ArrayList<>();
-                        tile.getScene().setRoot(BoardUtil.getChessBoard());
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
+                    tile.getScene().getWindow().hide();
+                    //figures = new ArrayList<>();
+                    //tile.getScene().setRoot(BoardUtil.getChessBoard());
 
                 }
                 else if(AvailableMovements.findKing(FigureColor.WHITE)==null) {
                     TextDialog.getTextDialog("CZARNE WYGRALY").showAndWait();
-                    try {
-                        figures = new ArrayList<>();
-                        tile.getScene().setRoot(BoardUtil.getChessBoard());
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
+                    tile.getScene().getWindow().hide();
+                    //figures = new ArrayList<>();
+                    //tile.getScene().setRoot(BoardUtil.getChessBoard());
                 }
             }
         });

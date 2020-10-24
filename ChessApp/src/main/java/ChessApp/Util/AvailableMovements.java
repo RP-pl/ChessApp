@@ -9,12 +9,53 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import static ChessApp.Util.MovementUtil.*;
 import java.io.FileNotFoundException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AvailableMovements {
     public static boolean checkAvailableMovement(Tile t,int xPosition, int yPosition, Figure f){
+        if(checked(Tile.turn)){
+            if(f.getType()==FigureType.KING){
+                List<Integer[]> movements = new LinkedList<>();
+                movements.add(new Integer[]{-1,-1});
+                movements.add(new Integer[]{0,-1});
+                movements.add(new Integer[]{1,-1});
+                movements.add(new Integer[]{1,0});
+                movements.add(new Integer[]{1,1});
+                movements.add(new Integer[]{0,1});
+                movements.add(new Integer[]{-1,1});
+                movements.add(new Integer[]{-1,0});
+                int i=0;
+                HBox board = (HBox) t.getParent().getParent();
+                for(Integer[] move : movements){
+                    if(blocked((Tile) ((VBox)board.getChildren().get(xPosition-move[0])).getChildren().get(yPosition-move[1]),f.getColor())){
+                        i++;
+                    }
+                }
+                if(i==7){
+                    if(FigureColor.BLACK==f.getColor()){
+                        TextDialog.getTextDialog("BIALE WYGRALY").showAndWait();
+                            t.getScene().getWindow().hide();
+
+                    }
+                    else if(FigureColor.WHITE==f.getColor()) {
+                        TextDialog.getTextDialog("CZARNE WYGRALY").showAndWait();
+                            t.getScene().getWindow().hide();
+                    }
+                }
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            return checkAvailable(t, xPosition, yPosition, f);
+        }
+    }
+
+
+    public static boolean checkAvailable(Tile t,int xPosition, int yPosition, Figure f){
         if(f.getType()== FigureType.PAWN) {
             try {
                 return pawnAvailableMovement(t, xPosition, yPosition, f);
@@ -39,8 +80,6 @@ public class AvailableMovements {
         }
         return true;
     }
-
-
 
 
 
@@ -163,7 +202,7 @@ public class AvailableMovements {
                     Figure.rochadeFlag = true;
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
                     Tile.figures.set(left.getPosition(),left);
-                    Figure.PGN.append("O-O-O ");
+                    Figure.PGN.append("W"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O-O ");
                     return true;
                 }
                 if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
@@ -172,7 +211,7 @@ public class AvailableMovements {
                     Figure.rochadeFlag = true;
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
                     Tile.figures.set(left.getPosition(),right);
-                    Figure.PGN.append("O-O ");
+                    Figure.PGN.append("W"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O ");
                     return true;
                 }
 
@@ -186,7 +225,8 @@ public class AvailableMovements {
                     ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)).setCenter(left);
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
                     Tile.figures.set(left.getPosition(),left);
-                    Figure.PGN.append("O-O-O ");
+                    Figure.PGN.delete(Figure.PGN.length(),Figure.PGN.length());
+                    Figure.PGN.append("B"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O-O ");
                     return true;
                 }
                 if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
@@ -195,7 +235,7 @@ public class AvailableMovements {
                     ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(0)).setCenter(right);
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
                     Tile.figures.set(left.getPosition(),right);
-                    Figure.PGN.append("O-O ");
+                    Figure.PGN.append("B"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O ");
                     return true;
                 }
 
@@ -282,4 +322,26 @@ public class AvailableMovements {
         return queen.orElse(null);
     }
 
+    public static boolean checked(FigureColor color){
+        Figure king = findKing(color);
+        List<Figure> oposite = Tile.figures.stream().filter(figure -> figure.getColor()!=color).collect(Collectors.toList());
+        for(Figure figure : oposite){
+            if(checkAvailable(king.getCurrentTile(),king.getCurrentTile().getPositionX(),king.getCurrentTile().getPositionY(),figure)){
+                return true;
+            }
+        }
+        return false;
+    }
+    public static boolean blocked(Tile t,FigureColor color){
+        List<Figure> oposite = Tile.figures.stream().filter(figure -> figure.getColor()!=color).collect(Collectors.toList());
+        if(t.getCenter()!=null&&((Figure)t.getCenter()).getColor()==color){
+            return true;
+        }
+        for(Figure figure : oposite){
+            if(checkAvailable(t,t.getPositionX(),t.getPositionY(),figure)){
+                return true;
+            }
+        }
+    return false;
+    }
     }
