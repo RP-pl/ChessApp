@@ -1,4 +1,4 @@
-file = open('/f.txt')
+file = open('C:\\Users\\RP\\PycharmProjects\\ChessAppAI\\f.txt')
 raw = file.read().replace("\n"," ").split(' ')
 print(raw[:1000])
 s = set()
