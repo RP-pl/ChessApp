@@ -21,7 +21,7 @@ public class AvailableMovements {
         Figure king = findKing(f.getColor());
         if(checked(Tile.turn,Tile.figures)&&checkIfMate(t, xPosition, yPosition, king)){
             if(f.getType()==FigureType.KING){
-                return checkAvailable(t, xPosition, yPosition, f);
+                return checkAvailable(t, xPosition, yPosition, f)&&!blocked(t,f.getColor());
             }
             else{
                 return checkAvailable(t, xPosition, yPosition, f);
@@ -346,6 +346,9 @@ public class AvailableMovements {
                 i++;
             }
         }
+
+        //TODO Figure able to change if mate i--
+
         if(i==8){
             if(FigureColor.BLACK==f.getColor()){
                 TextDialog.getTextDialog("BIALE WYGRALY").showAndWait();
