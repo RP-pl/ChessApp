@@ -4,49 +4,27 @@ import ChessApp.Enums.FigureColor;
 import ChessApp.Enums.FigureType;
 import ChessApp.Node.Figure;
 import ChessApp.Parent.Tile;
-import com.sun.javafx.tk.Toolkit;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import static ChessApp.Util.MovementUtil.*;
+
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class AvailableMovements {
-    public static boolean checkAvailableMovement(Tile t,int xPosition, int yPosition, Figure f){
-        if(checked(Tile.turn)){
-            if(f.getType()==FigureType.KING){
-                List<Integer[]> movements = new LinkedList<>();
-                movements.add(new Integer[]{-1,-1});
-                movements.add(new Integer[]{0,-1});
-                movements.add(new Integer[]{1,-1});
-                movements.add(new Integer[]{1,0});
-                movements.add(new Integer[]{1,1});
-                movements.add(new Integer[]{0,1});
-                movements.add(new Integer[]{-1,1});
-                movements.add(new Integer[]{-1,0});
-                int i=0;
-                HBox board = (HBox) t.getParent().getParent();
-                for(Integer[] move : movements){
-                    if(blocked((Tile) ((VBox)board.getChildren().get(xPosition-move[0])).getChildren().get(yPosition-move[1]),f.getColor())){
-                        i++;
-                    }
-                }
-                if(i==7){
-                    if(FigureColor.BLACK==f.getColor()){
-                        TextDialog.getTextDialog("BIALE WYGRALY").showAndWait();
-                            t.getScene().getWindow().hide();
+import static ChessApp.Util.MovementUtil.*;
 
-                    }
-                    else if(FigureColor.WHITE==f.getColor()) {
-                        TextDialog.getTextDialog("CZARNE WYGRALY").showAndWait();
-                            t.getScene().getWindow().hide();
-                    }
-                }
-                return true;
+public class AvailableMovements {
+
+    public static boolean checkAvailableMovement(Tile t,int xPosition, int yPosition, Figure f){
+        Figure king = findKing(f.getColor());
+        if(checked(Tile.turn,Tile.figures)&&checkIfMate(t, xPosition, yPosition, king)){
+            if(f.getType()==FigureType.KING){
+                return checkAvailable(t, xPosition, yPosition, f);
             }
             else{
-                return false;
+                return checkAvailable(t, xPosition, yPosition, f);
             }
         }
         else{
@@ -87,7 +65,7 @@ public class AvailableMovements {
     private static boolean pawnAvailableMovement(Tile t,int xPosition, int yPosition, Figure f) throws FileNotFoundException {
         if (f.getColor() == FigureColor.WHITE) {
             if (xPosition == f.getCurrentTile().getPositionX()) {
-                if (yPosition == f.getCurrentTile().getPositionY() - 1 || (yPosition == f.getCurrentTile().getPositionY() - 2&f.moves==0)) {
+                if (yPosition == f.getCurrentTile().getPositionY() - 1 || (yPosition == f.getCurrentTile().getPositionY() - 2&&f.moves==0)) {
                     if (t.getCenter() != null) {
                         if(yPosition==0){
                             f.setType(ChangeFigureDialog.getChangeDialog().showAndWait().get());
@@ -199,7 +177,7 @@ public class AvailableMovements {
                 if (xPosition == 2 && left.getMoves() == 0 && f.getMoves() == 0&&leftRookfieldsClear(f.getColor(),board)) {
                     left.incrementMoves();
                     ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)).setCenter(left);
-                    Figure.rochadeFlag = true;
+                    Figure.castleFlag = true;
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
                     Tile.figures.set(left.getPosition(),left);
                     Figure.PGN.append("W"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O-O ");
@@ -208,7 +186,7 @@ public class AvailableMovements {
                 if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
                     right.incrementMoves();
                     ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)).setCenter(right);
-                    Figure.rochadeFlag = true;
+                    Figure.castleFlag = true;
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
                     Tile.figures.set(left.getPosition(),right);
                     Figure.PGN.append("W"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O ");
@@ -221,7 +199,7 @@ public class AvailableMovements {
 
                 if (xPosition == 2 && left.getMoves() == 0 && f.getMoves() == 0&&leftRookfieldsClear(f.getColor(),board)) {
                     left.incrementMoves();
-                    Figure.rochadeFlag = true;
+                    Figure.castleFlag = true;
                     ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)).setCenter(left);
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
                     Tile.figures.set(left.getPosition(),left);
@@ -231,7 +209,7 @@ public class AvailableMovements {
                 }
                 if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
                     right.incrementMoves();
-                    Figure.rochadeFlag = true;
+                    Figure.castleFlag = true;
                     ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(0)).setCenter(right);
                     left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
                     Tile.figures.set(left.getPosition(),right);
@@ -322,9 +300,9 @@ public class AvailableMovements {
         return queen.orElse(null);
     }
 
-    public static boolean checked(FigureColor color){
+    public static boolean checked(FigureColor color,List<Figure> figures){
         Figure king = findKing(color);
-        List<Figure> oposite = Tile.figures.stream().filter(figure -> figure.getColor()!=color).collect(Collectors.toList());
+        List<Figure> oposite = figures.stream().filter(figure -> figure.getColor()!=color).collect(Collectors.toList());
         for(Figure figure : oposite){
             if(checkAvailable(king.getCurrentTile(),king.getCurrentTile().getPositionX(),king.getCurrentTile().getPositionY(),figure)){
                 return true;
@@ -344,4 +322,90 @@ public class AvailableMovements {
         }
     return false;
     }
+    private static boolean checkIfMate(Tile t,int xPosition,int yPosition,Figure f){
+        List<Integer[]> movements = new LinkedList<>();
+        movements.add(new Integer[]{-1,-1});
+        movements.add(new Integer[]{0,-1});
+        movements.add(new Integer[]{1,-1});
+        movements.add(new Integer[]{1,0});
+        movements.add(new Integer[]{1,1});
+        movements.add(new Integer[]{0,1});
+        movements.add(new Integer[]{-1,1});
+        movements.add(new Integer[]{-1,0});
+        int i=0;
+        HBox board = (HBox) t.getParent().getParent();
+        Figure king = findKing(f.getColor());
+        for(Integer[] move : movements){
+            if(king.getCurrentTile().getPositionX()+move[0]<0||king.getCurrentTile().getPositionX()+move[0]>7){
+                i++;
+            }
+            else if(king.getCurrentTile().getPositionY()+move[1]<0||king.getCurrentTile().getPositionY()+move[1]>7){
+                i++;
+            }
+            else if(blocked((Tile) ((VBox)board.getChildren().get(king.getCurrentTile().getPositionX()+move[0])).getChildren().get(king.getCurrentTile().getPositionY()+move[1]),f.getColor())){
+                i++;
+            }
+        }
+        if(i==8){
+            if(FigureColor.BLACK==f.getColor()){
+                TextDialog.getTextDialog("BIALE WYGRALY").showAndWait();
+                t.getScene().getWindow().hide();
+
+            }
+            else if(FigureColor.WHITE==f.getColor()) {
+                TextDialog.getTextDialog("CZARNE WYGRALY").showAndWait();
+                t.getScene().getWindow().hide();
+            }
+        }
+        return true;
     }
+
+    private static boolean ableToCoverUp(Tile t,Figure king) {
+        List<Figure> figures = Tile.getFigures();
+        List<Figure> ableToCoverField = Tile.figures.stream().filter(figure -> figure.getColor()==king.getColor()).filter(figure -> checkAvailable(t,t.getPositionX(),t.getPositionY(),figure)).collect(Collectors.toList());
+        for(Figure figure: ableToCoverField){
+            Figure f = null;
+            Tile bef = figure.getCurrentTile();
+            if (t.getCenter() != null && figures.indexOf((Figure) t.getCenter()) != figure.getPosition()) {
+                f = (Figure) t.getCenter();
+                if(f.getColor()!=figure.getColor()) {
+                    t.setCenter(figure);
+                    figures.remove(f);
+                    for (Figure figur : figures) {
+                        int p = figures.indexOf(figur);
+                        figur.setPosition(p);
+                        figures.set(p, figur);
+                    }
+                }
+            } else {
+                t.setCenter(figure);
+            }
+            if(checked(figure.getColor(),figures)){
+                if(f==null){
+                    figure.setCurrentTile(bef);
+                    bef.setCenter(figure);
+                    t.setCenter(null);
+                }
+                else{
+                    figure.setCurrentTile(bef);
+                    bef.setCenter(figure);
+                    t.setCenter(f);
+                }
+            }
+            else{
+                if(f==null){
+                    figure.setCurrentTile(bef);
+                    bef.setCenter(figure);
+                    t.setCenter(null);
+                }
+                else{
+                    figure.setCurrentTile(bef);
+                    bef.setCenter(figure);
+                    t.setCenter(f);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+}

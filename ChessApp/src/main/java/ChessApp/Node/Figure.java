@@ -19,7 +19,7 @@ import java.util.TreeMap;
 public class Figure extends ImageView {
     public static int totalMoves = 0;
     public int moves = 0;
-    public static boolean rochadeFlag = false;
+    public static boolean castleFlag = false;
     public static StringBuilder PGN = new StringBuilder("");
     private final FigureColor color;
     private FigureType type;
@@ -87,6 +87,15 @@ public class Figure extends ImageView {
                 this.setImage(new Image(new FileInputStream("src\\main\\resources\\White_queen.png")));
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj.getClass() == this.getClass()) {
+            Figure ob = (Figure) obj;
+            return  this.getColor() == ob.getColor()&&this.getType()==ob.getType()&&this.getCurrentTile()==ob.getCurrentTile();
+        }
+        return false;
     }
 
     public void setPosition(int position) {
@@ -175,10 +184,10 @@ public class Figure extends ImageView {
         }
     }
     public void addToNotation(int xc,int yc,Figure f2){
-        if(!rochadeFlag){
+        if(!castleFlag){
             PGN.append(convertToPGN(this,xc,yc,f2));
         }
-        rochadeFlag = false;
+        castleFlag = false;
     }
     private static String convertToPGN(Figure f,int xc,int yc,Figure f2) {
         Map<FigureType, String> conv = new TreeMap<>();
