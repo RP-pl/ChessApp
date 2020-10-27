@@ -320,6 +320,9 @@ public class AvailableMovements {
         if(t.getCenter()!=null&&((Figure)t.getCenter()).getColor()==color){
             return true;
         }
+        else if(t.getCenter()!=null&&((Figure)t.getCenter()).getColor()!=color){
+            return false;
+        }
         for(Figure figure : oposite){
             if(checkAvailable(t,t.getPositionX(),t.getPositionY(),figure)){
                 return true;
