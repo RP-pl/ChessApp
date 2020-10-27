@@ -16,15 +16,20 @@ import java.util.stream.Collectors;
 import static ChessApp.Util.MovementUtil.*;
 
 public class AvailableMovements {
-
+    public static List<Move> moves = new LinkedList<>();
+    public static List<Tile> kingMoves = new LinkedList<>();
     public static boolean checkAvailableMovement(Tile t,int xPosition, int yPosition, Figure f){
         Figure king = findKing(f.getColor());
-        if(checked(Tile.turn,Tile.figures)&&checkIfMate(t, xPosition, yPosition, king)){
+        if(checked(Tile.turn,Tile.figures)&&!checkIfMate(t, xPosition, yPosition, king)){
             if(f.getType()==FigureType.KING){
-                return checkAvailable(t, xPosition, yPosition, f)&&!blocked(t,f.getColor());
+                boolean res = kingMoves.contains(t)&&checkAvailable(t, xPosition, yPosition, f)&&!blocked(t,f.getColor());
+                kingMoves = new LinkedList<>();
+                return res;
             }
             else{
-                return checkAvailable(t, xPosition, yPosition, f);
+                boolean res = moves.contains(new Move(t,f))&&checkAvailable(t, xPosition, yPosition, f);
+                moves = new LinkedList<>();
+                return res;
             }
         }
         else{
@@ -147,7 +152,7 @@ public class AvailableMovements {
     private static boolean knightAvailableMovement(Tile t,int xPosition, int yPosition, Figure f){
         int x = f.getCurrentTile().getPositionX();
         int y = f.getCurrentTile().getPositionY();
-        if((xPosition==x+2||xPosition==x-2)&&(yPosition==y+1||yPosition==y-1)||(yPosition==y+2||yPosition==y-2)&&(xPosition==x+1||xPosition==x-1)){
+        if(((xPosition==x+2||xPosition==x-2)&&(yPosition==y+1||yPosition==y-1))||((yPosition==y+2||yPosition==y-2)&&(xPosition==x+1||xPosition==x-1))){
             return true;
         }
         return false;
@@ -345,9 +350,55 @@ public class AvailableMovements {
             else if(blocked((Tile) ((VBox)board.getChildren().get(king.getCurrentTile().getPositionX()+move[0])).getChildren().get(king.getCurrentTile().getPositionY()+move[1]),f.getColor())){
                 i++;
             }
+            else{
+                kingMoves.add((Tile) ((VBox)board.getChildren().get(king.getCurrentTile().getPositionX()+move[0])).getChildren().get(king.getCurrentTile().getPositionY()+move[1]));
+            }
         }
 
         //TODO Figure able to change if mate i--
+        for(Figure figure : Tile.figures.stream().filter(figure -> figure.getColor()==king.getColor()).collect(Collectors.toList())){
+            for(int j=0;j<8;j++){
+                for(int k=0;k<8;k++) {
+                    List<Figure> figures = Tile.getFigures();
+                    Tile befTile = figure.getCurrentTile();
+                    Tile tile = (Tile) ((VBox) board.getChildren().get(j)).getChildren().get(k);
+                    if(checkAvailable(tile, tile.getPositionX(), tile.getPositionY(), figure)) {
+                        if(tile.getCenter() != null && ((Figure) tile.getCenter()).getColor() != figure.getColor()) {
+                                Figure onTile = (Figure) tile.getCenter();
+                                tile.setCenter(figure);
+                                figure.setCurrentTile(tile);
+                                figures.set(figure.getPosition(), figure);
+                                figures.remove(onTile);
+                                if (!checked(king.getColor(), figures)) {
+                                    moves.add(new Move(tile, figure));
+                                    i--;
+                                }
+                            figures.add(onTile);
+                            figures.sort((f1,f2)->f1.getPosition()-f2.getPosition());
+                            tile.setCenter(onTile);
+                            befTile.setCenter(figure);
+                            figure.setCurrentTile(befTile);
+                            figures.set(figure.getPosition(),figure);
+                            int z=0;
+                        }
+                        else if(tile.getCenter() != null && ((Figure) tile.getCenter()).getColor() == figure.getColor()){
+                        }
+                        else { tile.setCenter(figure);
+                            figure.setCurrentTile(tile);
+                            figures.set(figure.getPosition(), figure);
+                            if (!checked(king.getColor(), figures)) {
+                                moves.add(new Move(tile, figure));
+                                i--;
+                            }
+                            tile.setCenter(null);
+                            befTile.setCenter(figure);
+                            figure.setCurrentTile(befTile);
+                            figures.set(figure.getPosition(),figure);
+                        }
+                    }
+                    }
+                }
+            }
 
         if(i==8){
             if(FigureColor.BLACK==f.getColor()){
@@ -360,7 +411,8 @@ public class AvailableMovements {
                 t.getScene().getWindow().hide();
             }
         }
-        return true;
+
+        return false;
     }
 
     private static boolean ableToCoverUp(Tile t,Figure king) {

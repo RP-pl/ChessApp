@@ -183,7 +183,20 @@ public class Figure extends ImageView {
             }
         }
     }
-    public void addToNotation(int xc,int yc,Figure f2){
+
+    @Override
+    public String toString() {
+        return "Figure{" +
+                "moves=" + moves +
+                ", color=" + color +
+                ", type=" + type +
+                ", figure=" + figure +
+                ", position=" + position +
+                ", currentTile=" + currentTile +
+                '}';
+    }
+
+    public void addToNotation(int xc, int yc, Figure f2){
         if(!castleFlag){
             PGN.append(convertToPGN(this,xc,yc,f2));
         }
