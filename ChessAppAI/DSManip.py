@@ -9,11 +9,11 @@ def prerpareDatasets(t,dataset):
     token = tokenized[:-1]
     #token = token[numpy.newaxis, ...]
     print(token.shape)
-    y = tokenized[len(tokenized) - 1][-1]
-    y = y[numpy.newaxis, ...]
+    y = tokenized[-1]
+    #y = y[numpy.newaxis, ...]
     return token,y
 def getData(t,start,end):
-    s = open("f.txt", "r").read().split('\n')[start:end]
+    s = open("C:\\Users\\RP\\PycharmProjects\\ChessAppAI\\f.txt", "r").read().split('\n')[start:end]
     x, y = list(), list()
     for element in s:
         x1, y1 = prerpareDatasets(t, element)

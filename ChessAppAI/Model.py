@@ -15,10 +15,13 @@ model = keras.models.Sequential([
     keras.layers.Dense(5098,activation='elu'),
     keras.layers.Reshape((1,5098))
 ])
-model.compile(optimizer=keras.optimizers.Adadelta(),loss=keras.losses.sparse_categorical_crossentropy,metrics=keras.metrics.LogCoshError())
+model = keras.models.load_model("ChessAI.h5")
+model.compile(optimizer=keras.optimizers.Adadelta(),loss=keras.losses.binary_crossentropy,metrics=keras.metrics.LogCoshError())
 t = Token()
-x,y = getData(t,0,5000)
-model.fit(x,y,epochs=20,callbacks=[keras.callbacks.ModelCheckpoint(filepath="ChessAI.h5",save_weights_only=False,save_best_only=True,monitor='loss'),keras.callbacks.EarlyStopping(monitor='loss')])
+x,y = getData(t,25000,30000)
+#model.fit(x,y,epochs=5,callbacks=[keras.callbacks.ModelCheckpoint(filepath="ChessAI.h5",save_weights_only=False,save_best_only=True,monitor='loss'),keras.callbacks.EarlyStopping(monitor='loss')])
 test =keras.preprocessing.sequence.pad_sequences(x[0])
 test = test[numpy.newaxis,...]
+print(model.predict(test))
+print(numpy.argmax(model.predict(test)))
 print(t.t.index_word[numpy.argmax(model.predict(test))])
