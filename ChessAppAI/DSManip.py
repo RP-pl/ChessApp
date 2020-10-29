@@ -1,3 +1,5 @@
+import random
+
 import numpy
 import numpy as np
 from tensorflow import keras
@@ -6,10 +8,11 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 def prerpareDatasets(t,dataset):
     (tokenized, length) = t.tokenize(dataset.split(' '))
-    token = tokenized[:-1]
-    #token = token[numpy.newaxis, ...]
+    numb = random.randint(0,len(tokenized)-1)
+    token = tokenized[:numb]
     print(token.shape)
-    y = tokenized[-1]
+    #token = token[numpy.newaxis, ...]
+    y = tokenized[numb]
     #y = y[numpy.newaxis, ...]
     return token,y
 def getData(t,start,end):
@@ -22,3 +25,9 @@ def getData(t,start,end):
     x = keras.preprocessing.sequence.pad_sequences(x)
     y = keras.preprocessing.sequence.pad_sequences(y)
     return x,y
+def prepareFit(t,fit):
+        (tokenized, length) = t.tokenize(fit.split(' '))
+        token = tokenized[:]
+        token = keras.preprocessing.sequence.pad_sequences(token)
+        token = token[numpy.newaxis, ...]
+        return token
