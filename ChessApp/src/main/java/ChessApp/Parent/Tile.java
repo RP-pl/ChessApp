@@ -22,7 +22,6 @@ import java.util.List;
 public class Tile  extends BorderPane {
     public static ArrayList<Figure> figures = new ArrayList<>();
     public static FigureColor turn = FigureColor.WHITE;
-    private Figure onField;
     private final int posy;
     private final int posx;
     private final FieldColor fieldColor;
@@ -120,5 +119,11 @@ public class Tile  extends BorderPane {
 
     public static List<Figure> getFigures() {
         return figures;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Tile t = (Tile) obj;
+        return this.posx == t.posx && this.posy == t.posy;
     }
 }

@@ -22,7 +22,9 @@ public class AvailableMovements {
         Figure king = findKing(f.getColor());
         if(checked(Tile.turn,Tile.figures)&&!checkIfMate(t, xPosition, yPosition, king)){
             if(f.getType()==FigureType.KING){
-                boolean res = kingMoves.contains(t)&&checkAvailable(t, xPosition, yPosition, f)&&!blocked(t,f.getColor());
+                boolean res = kingMoves.contains(t);
+                res = res&&checkAvailable(t, xPosition, yPosition, f);
+                res = res&&!blocked(t,f.getColor());
                 kingMoves = new LinkedList<>();
                 return res;
             }
@@ -162,7 +164,7 @@ public class AvailableMovements {
         List<Figure> rooks = findRooks(f.getColor());
         int x = f.getCurrentTile().getPositionX();
         int y = f.getCurrentTile().getPositionY();
-        if((Math.abs(yPosition-y)==1&&Math.abs(xPosition-x)==1)||(Math.abs(yPosition-y)==0&&Math.abs(xPosition-x)==1)||(Math.abs(yPosition-y)==1&&Math.abs(xPosition-x)==0)){
+        if((Math.abs(yPosition-y)==1&&Math.abs(xPosition-x)==1)||(Math.abs(yPosition-y)==0&&Math.abs(xPosition-x)==1)||(Math.abs(yPosition-y)==1&&Math.abs(xPosition-x)==0)&&!blocked(t,f.getColor())){
             return true;
         }
         else if(rooks.size()==2){
@@ -192,8 +194,8 @@ public class AvailableMovements {
                     right.incrementMoves();
                     ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)).setCenter(right);
                     Figure.castleFlag = true;
-                    left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
-                    Tile.figures.set(left.getPosition(),right);
+                    right.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
+                    Tile.figures.set(right.getPosition(),right);
                     Figure.PGN.append("W"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O ");
                     return true;
                 }
@@ -216,8 +218,8 @@ public class AvailableMovements {
                     right.incrementMoves();
                     Figure.castleFlag = true;
                     ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(0)).setCenter(right);
-                    left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
-                    Tile.figures.set(left.getPosition(),right);
+                    right.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
+                    Tile.figures.set(right.getPosition(),right);
                     Figure.PGN.append("B"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O ");
                     return true;
                 }
@@ -358,15 +360,14 @@ public class AvailableMovements {
             }
         }
 
-        //TODO Figure able to change if mate i--
         for(Figure figure : Tile.figures.stream().filter(figure -> figure.getColor()==king.getColor()).collect(Collectors.toList())){
             for(int j=0;j<8;j++){
                 for(int k=0;k<8;k++) {
                     List<Figure> figures = Tile.getFigures();
-                    Tile befTile = figure.getCurrentTile();
-                    Tile tile = (Tile) ((VBox) board.getChildren().get(j)).getChildren().get(k);
-                    if(checkAvailable(tile, tile.getPositionX(), tile.getPositionY(), figure)) {
-                        if(tile.getCenter() != null && ((Figure) tile.getCenter()).getColor() != figure.getColor()) {
+                        Tile befTile = figure.getCurrentTile();
+                        Tile tile = (Tile) ((VBox) board.getChildren().get(j)).getChildren().get(k);
+                        if(checkAvailable(tile, tile.getPositionX(), tile.getPositionY(), figure)) {
+                            if(tile.getCenter() != null && ((Figure) tile.getCenter()).getColor() != figure.getColor()) {
                                 Figure onTile = (Figure) tile.getCenter();
                                 tile.setCenter(figure);
                                 figure.setCurrentTile(tile);
@@ -386,7 +387,8 @@ public class AvailableMovements {
                         }
                         else if(tile.getCenter() != null && ((Figure) tile.getCenter()).getColor() == figure.getColor()){
                         }
-                        else { tile.setCenter(figure);
+                        else {
+                            tile.setCenter(figure);
                             figure.setCurrentTile(tile);
                             figures.set(figure.getPosition(), figure);
                             if (!checked(king.getColor(), figures)) {
@@ -394,6 +396,7 @@ public class AvailableMovements {
                                 i--;
                             }
                             tile.setCenter(null);
+                            figures.sort((f1,f2)->f1.getPosition()-f2.getPosition());
                             befTile.setCenter(figure);
                             figure.setCurrentTile(befTile);
                             figures.set(figure.getPosition(),figure);
