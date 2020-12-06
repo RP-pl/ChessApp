@@ -14,13 +14,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ChessApp.Util.MovementUtil.*;
-
 public class AvailableMovements {
     public static List<Move> moves = new LinkedList<>();
     public static List<Tile> kingMoves = new LinkedList<>();
     public static boolean checkAvailableMovement(Tile t,int xPosition, int yPosition, Figure f){
-        Figure king = findKing(f.getColor());
+        Figure king = findKing(Tile.turn);
         if(checked(Tile.turn,Tile.figures)&&!checkIfMate(t, xPosition, yPosition, king)){
+            Figure.PGN.deleteCharAt(Figure.PGN.length()-1);
+            Figure.PGN.append("+ ");
             if(f.getType()==FigureType.KING){
                 boolean res = kingMoves.contains(t);
                 res = res&&checkAvailable(t, xPosition, yPosition, f);
@@ -29,6 +30,7 @@ public class AvailableMovements {
                 return res;
             }
             else{
+
                 boolean res = moves.contains(new Move(t,f))&&checkAvailable(t, xPosition, yPosition, f);
                 moves = new LinkedList<>();
                 return res;
@@ -161,7 +163,7 @@ public class AvailableMovements {
     }
 
     private static boolean kingAvailableMovement(Tile t,int xPosition, int yPosition, Figure f){
-        List<Figure> rooks = findRooks(f.getColor());
+        List<Figure> rooks = findRooks(Tile.turn);
         int x = f.getCurrentTile().getPositionX();
         int y = f.getCurrentTile().getPositionY();
         if((Math.abs(yPosition-y)==1&&Math.abs(xPosition-x)==1)||(Math.abs(yPosition-y)==0&&Math.abs(xPosition-x)==1)||(Math.abs(yPosition-y)==1&&Math.abs(xPosition-x)==0)&&!blocked(t,f.getColor())){
@@ -178,10 +180,10 @@ public class AvailableMovements {
                  left = rooks.get(1);
                  right = rooks.get(0);
             }
-            if(f.getColor()==FigureColor.WHITE) {
+            if(Tile.turn==FigureColor.WHITE) {
                 HBox board = (HBox) t.getParent().getParent();
 
-                if (xPosition == 2 && left.getMoves() == 0 && f.getMoves() == 0&&leftRookfieldsClear(f.getColor(),board)) {
+                if (xPosition == 2 && (left.getMoves() == 0||left.getMoves() == 1) && f.getMoves() == 0&&leftRookfieldsClear(f.getColor(),board)) {
                     left.incrementMoves();
                     ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)).setCenter(left);
                     Figure.castleFlag = true;
@@ -190,21 +192,21 @@ public class AvailableMovements {
                     Figure.PGN.append("W"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O-O ");
                     return true;
                 }
-                if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
+                if(xPosition == 6 && (right.getMoves() == 0||right.getMoves() == 1) && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
                     right.incrementMoves();
                     ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)).setCenter(right);
                     Figure.castleFlag = true;
-                    right.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
+                    right.setCurrentTile(((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)));
                     Tile.figures.set(right.getPosition(),right);
                     Figure.PGN.append("W"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O ");
                     return true;
                 }
 
             }
-            else if(f.getColor()==FigureColor.BLACK) {
+            else if(Tile.turn==FigureColor.BLACK) {
                 HBox board = (HBox) t.getParent().getParent();
 
-                if (xPosition == 2 && left.getMoves() == 0 && f.getMoves() == 0&&leftRookfieldsClear(f.getColor(),board)) {
+                if (xPosition == 2 && (left.getMoves() == 0||left.getMoves() == 1) && f.getMoves() == 0&&leftRookfieldsClear(f.getColor(),board)) {
                     left.incrementMoves();
                     Figure.castleFlag = true;
                     ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)).setCenter(left);
@@ -214,123 +216,74 @@ public class AvailableMovements {
                     Figure.PGN.append("B"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O-O ");
                     return true;
                 }
-                if(xPosition == 6 && right.getMoves() == 0 && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
+                if(xPosition == 6 && (right.getMoves() == 0||right.getMoves() == 1) && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
                     right.incrementMoves();
                     Figure.castleFlag = true;
                     ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(0)).setCenter(right);
-                    right.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(0)));
+                    right.setCurrentTile(((Tile)((VBox)board.getChildren().get(5)).getChildren().get(0)));
                     Tile.figures.set(right.getPosition(),right);
                     Figure.PGN.append("B"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O ");
                     return true;
                 }
+            }
+        }
+        else if(rooks.size()==1){
+            Figure left = null;
+            Figure right = null;
+            if(rooks.get(0).getCurrentTile().getPositionX()==0){
+                left = rooks.get(0);
+            }
+            else{
+                right = rooks.get(0);
+            }
+            if(f.getColor()==FigureColor.WHITE) {
+                HBox board = (HBox) t.getParent().getParent();
 
+                if (left!=null&&xPosition == 2 && (left.getMoves() == 0||left.getMoves() == 1) && f.getMoves() == 0&&leftRookfieldsClear(f.getColor(),board)) {
+                    left.incrementMoves();
+                    ((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)).setCenter(left);
+                    Figure.castleFlag = true;
+                    left.setCurrentTile(((Tile)((VBox)board.getChildren().get(3)).getChildren().get(7)));
+                    Tile.figures.set(left.getPosition(),left);
+                    Figure.PGN.append("W"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O-O ");
+                    return true;
+                }
+                if(right!=null&&xPosition == 6 && (right.getMoves() == 0||right.getMoves() == 1) && f.getMoves() == 0&&rightRookfieldsClear(f.getColor(),board)){
+                    right.incrementMoves();
+                    ((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)).setCenter(right);
+                    Figure.castleFlag = true;
+                    right.setCurrentTile(((Tile)((VBox)board.getChildren().get(5)).getChildren().get(7)));
+                    Tile.figures.set(right.getPosition(),right);
+                    Figure.PGN.append("W"+((int)Math.ceil((double)(++Figure.totalMoves)/2.0))+".O-O ");
+                    return true;
+                }
+
+            }
+            else if(f.getColor()==FigureColor.BLACK) {
+                HBox board = (HBox) t.getParent().getParent();
+
+                if (left!=null&&xPosition == 2 && (left.getMoves() == 0 || left.getMoves() == 1) && f.getMoves() == 0 && leftRookfieldsClear(f.getColor(), board)) {
+                    left.incrementMoves();
+                    Figure.castleFlag = true;
+                    ((Tile) ((VBox) board.getChildren().get(3)).getChildren().get(0)).setCenter(left);
+                    left.setCurrentTile(((Tile) ((VBox) board.getChildren().get(3)).getChildren().get(0)));
+                    Tile.figures.set(left.getPosition(), left);
+                    Figure.PGN.delete(Figure.PGN.length(), Figure.PGN.length());
+                    Figure.PGN.append("B" + ((int) Math.ceil((double) (++Figure.totalMoves) / 2.0)) + ".O-O-O ");
+                    return true;
+                }
+                if (right!=null&&xPosition == 6 && (right.getMoves() == 0 || right.getMoves() == 1) && f.getMoves() == 0 && rightRookfieldsClear(f.getColor(), board)) {
+                    right.incrementMoves();
+                    Figure.castleFlag = true;
+                    ((Tile) ((VBox) board.getChildren().get(5)).getChildren().get(0)).setCenter(right);
+                    right.setCurrentTile(((Tile) ((VBox) board.getChildren().get(5)).getChildren().get(0)));
+                    Tile.figures.set(right.getPosition(), right);
+                    Figure.PGN.append("B" + ((int) Math.ceil((double) (++Figure.totalMoves) / 2.0)) + ".O-O ");
+                    return true;
+                }
             }
         }
         return false;
-    }
-
-
-    private static boolean checkXAxisBlocked(int xPosition,Figure f){
-        if(xPosition>f.getCurrentTile().getPositionX()) {
-            int min = xPosition;
-            for (Figure figure : Tile.getFigures()) {
-                if(figure.getCurrentTile().getPositionX()<=xPosition&&figure.getCurrentTile().getPositionX()>f.getCurrentTile().getPositionX()&&f.getCurrentTile().getPositionY()==figure.getCurrentTile().getPositionY()){
-                    min = Math.min(min,figure.getCurrentTile().getPositionX());
-                }
-            }
-            return min >= xPosition;
-        }
-        else if(xPosition<f.getCurrentTile().getPositionX()){
-            int max = xPosition;
-            for (Figure figure : Tile.getFigures()) {
-                if(figure.getCurrentTile().getPositionX()>=xPosition&&figure.getCurrentTile().getPositionX()<f.getCurrentTile().getPositionX()&&f.getCurrentTile().getPositionY()==figure.getCurrentTile().getPositionY()){
-                    max = Math.max(max,figure.getCurrentTile().getPositionX());
-                }
-            }
-            return max <= xPosition;
-        }
-        return true;
-        }
-    private static boolean checkYAxisBlocked(int yPosition,Figure f){
-        if(yPosition>f.getCurrentTile().getPositionY()) {
-            int min = yPosition;
-            for (Figure figure : Tile.getFigures()) {
-                if(figure.getCurrentTile().getPositionY()<=yPosition&&figure.getCurrentTile().getPositionY()>f.getCurrentTile().getPositionY()&&f.getCurrentTile().getPositionX()==figure.getCurrentTile().getPositionX()){
-                    min = Math.min(min,figure.getCurrentTile().getPositionY());
-                }
-            }
-            return min >= yPosition;
-        }
-        else if(yPosition<f.getCurrentTile().getPositionY()){
-            int max = yPosition;
-            for (Figure figure : Tile.getFigures()) {
-                if(figure.getCurrentTile().getPositionY()>=yPosition&&figure.getCurrentTile().getPositionY()<f.getCurrentTile().getPositionY()&&f.getCurrentTile().getPositionX()==figure.getCurrentTile().getPositionX()){
-                    max = Math.max(max,figure.getCurrentTile().getPositionY());
-                }
-            }
-            return max <= yPosition;
-        }
-        return true;
-    }
-
-
-    private static boolean checkDecrementingBlock(int xPosition,int yPosition,Figure f){
-        if(yPosition>f.getCurrentTile().getPositionY()&&xPosition>f.getCurrentTile().getPositionX()){
-            int minY=yPosition,minX=xPosition;
-            for(Figure figure : Tile.getFigures()){
-                if(inline(figure,xPosition,yPosition)&&figure.getCurrentTile()!=f.getCurrentTile()&&f.getCurrentTile().getPositionX()<figure.getCurrentTile().getPositionX()){
-                    minX=Math.min(figure.getCurrentTile().getPositionX(),minX);
-                    minY=Math.min(figure.getCurrentTile().getPositionY(),minY);
-                }
-            }
-            return minX >= xPosition&&minY>= yPosition;
-        }
-        else{
-            int maxY=yPosition,maxX=xPosition;
-            for(Figure figure : Tile.getFigures()){
-                if(inline(figure,xPosition,yPosition)&&figure.getCurrentTile()!=f.getCurrentTile()&&f.getCurrentTile().getPositionX()>figure.getCurrentTile().getPositionX()){
-                    maxX=Math.max(figure.getCurrentTile().getPositionX(),maxX);
-                    maxY=Math.max(figure.getCurrentTile().getPositionY(),maxY);
-                }
-            }
-            return maxX <= xPosition&&maxY<= yPosition;
-        }
-    }
-
-    public static List<Figure> findRooks(FigureColor color){
-        List<Figure> rook = Tile.getFigures().stream().filter(figure -> figure.getType()==FigureType.ROOK).filter(figure -> figure.getColor()==color).collect(Collectors.toList());
-        return rook;
-    }
-
-    public static Figure findKing(FigureColor color){
-        Optional<Figure> queen = Tile.getFigures().stream().filter(figure -> figure.getType()==FigureType.KING).filter(figure -> figure.getColor()==color).findFirst();
-        return queen.orElse(null);
-    }
-
-    public static boolean checked(FigureColor color,List<Figure> figures){
-        Figure king = findKing(color);
-        List<Figure> oposite = figures.stream().filter(figure -> figure.getColor()!=color).collect(Collectors.toList());
-        for(Figure figure : oposite){
-            if(checkAvailable(king.getCurrentTile(),king.getCurrentTile().getPositionX(),king.getCurrentTile().getPositionY(),figure)){
-                return true;
-            }
-        }
-        return false;
-    }
-    public static boolean blocked(Tile t,FigureColor color){
-        List<Figure> oposite = Tile.figures.stream().filter(figure -> figure.getColor()!=color).collect(Collectors.toList());
-        if(t.getCenter()!=null&&((Figure)t.getCenter()).getColor()==color){
-            return true;
-        }
-        else if(t.getCenter()!=null&&((Figure)t.getCenter()).getColor()!=color){
-            return false;
-        }
-        for(Figure figure : oposite){
-            if(checkAvailable(t,t.getPositionX(),t.getPositionY(),figure)){
-                return true;
-            }
-        }
-    return false;
     }
     private static boolean checkIfMate(Tile t,int xPosition,int yPosition,Figure f){
         List<Integer[]> movements = new LinkedList<>();
@@ -360,7 +313,7 @@ public class AvailableMovements {
             }
         }
 
-        for(Figure figure : Tile.figures.stream().filter(figure -> figure.getColor()==king.getColor()).collect(Collectors.toList())){
+        for(Figure figure : Tile.figures.stream().filter(figure -> figure.getColor()==Tile.turn).filter(figure -> figure.getType()!=FigureType.KING).collect(Collectors.toList())){
             for(int j=0;j<8;j++){
                 for(int k=0;k<8;k++) {
                     List<Figure> figures = Tile.getFigures();
@@ -377,7 +330,9 @@ public class AvailableMovements {
                                     moves.add(new Move(tile, figure));
                                     i--;
                                 }
-                            figures.add(onTile);
+                                if(!Figure.castleFlag) {
+                                    figures.add(onTile);
+                                }
                             figures.sort((f1,f2)->f1.getPosition()-f2.getPosition());
                             tile.setCenter(onTile);
                             befTile.setCenter(figure);
@@ -409,64 +364,16 @@ public class AvailableMovements {
         if(i==8){
             if(FigureColor.BLACK==f.getColor()){
                 TextDialog.getTextDialog("BIALE WYGRALY").showAndWait();
+                Figure.PGN.append("#");
                 t.getScene().getWindow().hide();
-
             }
             else if(FigureColor.WHITE==f.getColor()) {
                 TextDialog.getTextDialog("CZARNE WYGRALY").showAndWait();
+                Figure.PGN.append("#");
                 t.getScene().getWindow().hide();
             }
         }
 
-        return false;
-    }
-
-    private static boolean ableToCoverUp(Tile t,Figure king) {
-        List<Figure> figures = Tile.getFigures();
-        List<Figure> ableToCoverField = Tile.figures.stream().filter(figure -> figure.getColor()==king.getColor()).filter(figure -> checkAvailable(t,t.getPositionX(),t.getPositionY(),figure)).collect(Collectors.toList());
-        for(Figure figure: ableToCoverField){
-            Figure f = null;
-            Tile bef = figure.getCurrentTile();
-            if (t.getCenter() != null && figures.indexOf((Figure) t.getCenter()) != figure.getPosition()) {
-                f = (Figure) t.getCenter();
-                if(f.getColor()!=figure.getColor()) {
-                    t.setCenter(figure);
-                    figures.remove(f);
-                    for (Figure figur : figures) {
-                        int p = figures.indexOf(figur);
-                        figur.setPosition(p);
-                        figures.set(p, figur);
-                    }
-                }
-            } else {
-                t.setCenter(figure);
-            }
-            if(checked(figure.getColor(),figures)){
-                if(f==null){
-                    figure.setCurrentTile(bef);
-                    bef.setCenter(figure);
-                    t.setCenter(null);
-                }
-                else{
-                    figure.setCurrentTile(bef);
-                    bef.setCenter(figure);
-                    t.setCenter(f);
-                }
-            }
-            else{
-                if(f==null){
-                    figure.setCurrentTile(bef);
-                    bef.setCenter(figure);
-                    t.setCenter(null);
-                }
-                else{
-                    figure.setCurrentTile(bef);
-                    bef.setCenter(figure);
-                    t.setCenter(f);
-                }
-                return true;
-            }
-        }
         return false;
     }
 }

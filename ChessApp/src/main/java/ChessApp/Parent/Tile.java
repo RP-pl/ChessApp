@@ -5,6 +5,7 @@ import ChessApp.Enums.FigureColor;
 import ChessApp.Node.Figure;
 import ChessApp.Util.AvailableMovements;
 import ChessApp.Util.BoardUtil;
+import ChessApp.Util.MovementUtil;
 import ChessApp.Util.TextDialog;
 import javafx.collections.ObservableArray;
 import javafx.event.EventHandler;
@@ -52,7 +53,6 @@ public class Tile  extends BorderPane {
             public void handle(DragEvent event) {
                 if (turn==figures.get(Integer.parseInt(event.getDragboard().getString())).getColor()&&AvailableMovements.checkAvailableMovement(tile, tile.getPositionX(), tile.getPositionY(), figures.get(Integer.parseInt(event.getDragboard().getString())))) {
                     if (tile.getCenter() != null && figures.indexOf((Figure) tile.getCenter()) != Integer.parseInt(event.getDragboard().getString())) {
-                        changeTurn();
                         Figure f = (Figure) tile.getCenter();
                         if(f.getColor()!=figures.get(Integer.parseInt(event.getDragboard().getString())).getColor()) {
                             figures.get(Integer.parseInt(event.getDragboard().getString())).addToNotation(tile.getPositionX(),tile.getPositionY(),f);
@@ -64,10 +64,10 @@ public class Tile  extends BorderPane {
                             TextDialog.getTextDialog("NIEDOZWOLONE").showAndWait();
                         }
                     } else {
-                        changeTurn();
                         tile.setCenter(figures.get(Integer.parseInt(event.getDragboard().getString())));
                         figures.get(Integer.parseInt(event.getDragboard().getString())).addToNotation(tile.getPositionX(),tile.getPositionY(),null);
                     }
+                    changeTurn();
                     Figure f = (Figure) tile.getCenter();
                     f.incrementMoves();
                     f.setCurrentTile(tile);
@@ -77,23 +77,21 @@ public class Tile  extends BorderPane {
                 else{
                     TextDialog.getTextDialog("NIEDOZWOLONE").showAndWait();
                 }
-                if(AvailableMovements.findKing(FigureColor.BLACK)==null){
+                if(MovementUtil.findKing(FigureColor.BLACK)==null){
                     TextDialog.getTextDialog("BIALE WYGRALY").showAndWait();
+                    Figure.PGN.append("#");
                     tile.getScene().getWindow().hide();
-                    //figures = new ArrayList<>();
-                    //tile.getScene().setRoot(BoardUtil.getChessBoard());
 
                 }
-                else if(AvailableMovements.findKing(FigureColor.WHITE)==null) {
+                else if(MovementUtil.findKing(FigureColor.WHITE)==null) {
                     TextDialog.getTextDialog("CZARNE WYGRALY").showAndWait();
+                    Figure.PGN.append("#");
                     tile.getScene().getWindow().hide();
-                    //figures = new ArrayList<>();
-                    //tile.getScene().setRoot(BoardUtil.getChessBoard());
                 }
             }
         });
     }
-    public void changeTurn(){
+    public static void changeTurn(){
         if(turn == FigureColor.BLACK){
             turn = FigureColor.WHITE;
         }
